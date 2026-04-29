@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext",
+    ],
+    "downlevelIteration": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/components/AnimatedSVG.jsx",
+    "src/components/ImageWithText.jsx",
+    ".next/dev/types/**/*.ts"
+, "src/app/about/page.jsx", "src/components/FAQ.jsx", "src/components/FAQ.jsx", "src/components/HeroPage.jsx", "src/components/WhereWeWork.jsx", "src/components/WhereWeWork.jsx", "src/components/NavBar.jsx", "src/components/TeamPage.jsx", "src/components/TestimonialPage.jsx", "src/components/TeamPage.jsx", "src/components/NewsletterSubscribe.jsx"  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
