@@ -216,7 +216,7 @@ export default async function AdminFideleDetailPage({ params }: PageProps) {
   const paroisses = await getParoisses()
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto ">
       {/* Fil d'Ariane */}
       <div className="flex items-center gap-2 text-sm text-gray-400 mb-6">
         <Link href="/admin" className="hover:text-gray-600">

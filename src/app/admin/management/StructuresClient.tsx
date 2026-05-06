@@ -766,12 +766,12 @@ export default function StructuresClient({
   ]
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto ">
       {/* En-tête */}
       <div className="mb-8 ">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-light text-gray-900 uppercase tracking-wider">Structures</h1>
-        <Link href='/admin/role' className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+        <Link href='/admin/management/role' className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
           Gérer les rôles associés →
         </Link>
         </div>
@@ -824,7 +824,7 @@ export default function StructuresClient({
       </div>
 
       {/* Liste */}
-      <div className="bg-white border border-gray-200 overflow-hidden">
+      <div className="bg-white border overflow-auto border-gray-200 ">
         <table className="min-w-full divide-y divide-gray-200">
           <thead>
             <tr className="bg-gray-50">

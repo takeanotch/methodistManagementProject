@@ -1033,7 +1033,7 @@ useEffect(() => {
                 type="button"
                 onClick={handleUpdateFidele}
                 disabled={isSubmitting}
-                className="flex-1 px-4 py-2 bg-black text-white -lg hover:bg-gray-800 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
+                className="flex-1 px-4  py-2 bg-black text-white -lg hover:bg-gray-800 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
               >
                 {isSubmitting ? (
                   <>

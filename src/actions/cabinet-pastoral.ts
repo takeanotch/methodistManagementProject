@@ -51,6 +51,7 @@ export interface CabinetMembre {
   fidele_nom: string
   fidele_prenom: string
   fidele_contact: string | null
+  fidele_profile_img?: string | null
 }
 
 export interface CabinetData {

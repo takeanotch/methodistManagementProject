@@ -1,5 +1,6 @@
 
 
+// app/admin/districts/[id]/chefs/ChefsClient.tsx
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
@@ -13,8 +14,23 @@ import {
   ChefDepartement 
 } from '@/actions/chef-departement'
 import { Departement } from '@/actions/departements'
+import { getAnneesConference } from '@/actions/annee-conference'
+import type { AnneeConference } from '@/actions/annee-conference'
 import { debounce } from 'lodash'
 import AjouterRoleModal from '@/components/AjouterRoleModal'
+import { 
+  Filter, 
+  FilterX, 
+  ChevronDown, 
+  CheckCircle, 
+  Loader2,
+  Plus,
+  Search,
+  X,
+  Edit2,
+  User,
+  Users
+} from 'lucide-react'
 
 interface Props {
   districtId: number
@@ -23,6 +39,7 @@ interface Props {
   chefs: ChefDepartement[]
   maxPostesParDepartement: number
   user: any
+  conferenceId: number | null // Ajouté pour charger les années
 }
 
 export default function ChefsClientDistrict({ 
@@ -31,7 +48,8 @@ export default function ChefsClientDistrict({
   departements, 
   chefs: initialChefs, 
   maxPostesParDepartement,
-  user 
+  user,
+  conferenceId 
 }: Props) {
   const [chefs, setChefs] = useState(initialChefs)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -42,9 +60,58 @@ export default function ChefsClientDistrict({
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
+  // États pour le filtre par année
+  const [selectedFilterAnneeId, setSelectedFilterAnneeId] = useState<number | null>(null)
+  const [availableAnnees, setAvailableAnnees] = useState<AnneeConference[]>([])
+  const [showAnneeFilterDropdown, setShowAnneeFilterDropdown] = useState(false)
+  const [loadingAnnees, setLoadingAnnees] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  // Charger les années disponibles
+  useEffect(() => {
+    loadAnnees()
+  }, [conferenceId])
+
+  const loadAnnees = async () => {
+    try {
+      setLoadingAnnees(true)
+      
+      if (conferenceId) {
+        const annees = await getAnneesConference(conferenceId)
+        // Trier par année (plus récent en premier)
+        annees.sort((a, b) => (b.annee_id || 0) - (a.annee_id || 0))
+        setAvailableAnnees(annees)
+
+        // Sélectionner l'année en cours par défaut (une seule fois)
+        if (!isInitialized) {
+          const anneeEnCours = annees.find(a => a.is_current)
+          if (anneeEnCours) {
+            setSelectedFilterAnneeId(anneeEnCours.id)
+          }
+          setIsInitialized(true)
+        }
+      }
+    } catch (error) {
+      console.error('Erreur chargement des années:', error)
+      setIsInitialized(true)
+    } finally {
+      setLoadingAnnees(false)
+    }
+  }
+
+  // Filtrer les chefs selon l'année sélectionnée
+  const filteredChefs = selectedFilterAnneeId 
+    ? chefs.filter(chef => chef.annee_conference_id === selectedFilterAnneeId)
+    : chefs
+
   const handleAjouterChef = async (formData: FormData) => {
     setLoading(true)
     setMessage(null)
+    
+    // Ajouter l'année de conférence sélectionnée au formulaire
+    if (selectedFilterAnneeId) {
+      formData.append('annee_conference_id', selectedFilterAnneeId.toString())
+    }
     
     const result = await ajouterChefDepartement(formData)
     
@@ -98,8 +165,18 @@ export default function ChefsClientDistrict({
     window.location.reload()
   }
 
-  // Grouper les chefs par département
-  const chefsParDepartement = chefs.reduce((acc, chef) => {
+  const handleResetFilter = () => {
+    setSelectedFilterAnneeId(null)
+  }
+
+  const getSelectedAnneeLabel = () => {
+    if (!selectedFilterAnneeId) return null
+    const annee = availableAnnees.find(a => a.id === selectedFilterAnneeId)
+    return annee?.annee?.label || `Année #${selectedFilterAnneeId}`
+  }
+
+  // Grouper les chefs filtrés par département
+  const chefsParDepartement = filteredChefs.reduce((acc, chef) => {
     if (!acc[chef.departement_id]) {
       acc[chef.departement_id] = []
     }
@@ -111,8 +188,8 @@ export default function ChefsClientDistrict({
     d.nom.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  // Statistiques
-  const totalChefs = chefs.length
+  // Statistiques basées sur les chefs filtrés
+  const totalChefs = filteredChefs.length
   const departementsAvecChefs = Object.keys(chefsParDepartement).length
   
   const postesVacants = departements.reduce((acc, dept) => {
@@ -128,10 +205,10 @@ export default function ChefsClientDistrict({
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <Link 
-            href={`/admin/districts/${districtId}/departements`}
+            href={`/admin/chefs`}
             className="text-gray-400 hover:text-gray-600 transition-colors text-sm"
           >
-            ← Retour aux départements
+            ← Retour aux responsables de département
           </Link>
           <h1 className="text-2xl font-light text-gray-900">
             Responsables de département - {districtNom}
@@ -155,6 +232,89 @@ export default function ChefsClientDistrict({
           {message.text}
         </div>
       )}
+
+      {/* Barre de filtre par année */}
+      <div className="mb-6 bg-white border border-gray-200 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Filter size={16} className="text-gray-400" />
+              <span className="text-sm text-gray-600">Filtrer par année :</span>
+            </div>
+            
+            {/* Dropdown du filtre */}
+            <div className="relative">
+              <button
+                onClick={() => setShowAnneeFilterDropdown(!showAnneeFilterDropdown)}
+                disabled={loadingAnnees}
+                className="min-w-[220px] px-4 py-2 border border-gray-200 text-left flex items-center justify-between hover:border-gray-300 transition-colors bg-white disabled:opacity-50"
+              >
+                <span className={selectedFilterAnneeId ? 'text-gray-900' : 'text-gray-400'}>
+                  {loadingAnnees ? (
+                    <span className="flex items-center gap-2"><Loader2 size={14} className="animate-spin" />Chargement...</span>
+                  ) : selectedFilterAnneeId ? (
+                    getSelectedAnneeLabel()
+                  ) : (
+                    'Toutes les années'
+                  )}
+                </span>
+                <ChevronDown size={16} className={`text-gray-400 transition-transform ${showAnneeFilterDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {showAnneeFilterDropdown && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setShowAnneeFilterDropdown(false)} />
+                  <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 shadow-lg z-20 min-w-[220px] max-h-64 overflow-y-auto">
+                    <button
+                      onClick={() => { setSelectedFilterAnneeId(null); setShowAnneeFilterDropdown(false) }}
+                      className={`w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors flex items-center justify-between ${!selectedFilterAnneeId ? 'bg-gray-50 text-gray-900' : 'text-gray-700'}`}
+                    >
+                      <span>Toutes les années</span>
+                      {!selectedFilterAnneeId && <CheckCircle size={14} className="text-emerald-600" />}
+                    </button>
+                    <div className="border-t border-gray-100"></div>
+                    {availableAnnees.map((ac) => (
+                      <button
+                        key={ac.id}
+                        onClick={() => { setSelectedFilterAnneeId(ac.id); setShowAnneeFilterDropdown(false) }}
+                        className={`w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors flex items-center justify-between ${selectedFilterAnneeId === ac.id ? 'bg-gray-50 text-gray-900' : 'text-gray-700'}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>{ac.annee?.label || `Année ${ac.annee_id}`}</span>
+                          {ac.is_current && (
+                            <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-medium rounded">En cours</span>
+                          )}
+                        </div>
+                        {selectedFilterAnneeId === ac.id && <CheckCircle size={14} className="text-emerald-600" />}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+          
+          {/* Bouton pour réinitialiser le filtre */}
+          {selectedFilterAnneeId && (
+            <button
+              onClick={handleResetFilter}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <FilterX size={14} />
+              Réinitialiser le filtre
+            </button>
+          )}
+        </div>
+        
+        {/* Information sur le filtre actif */}
+        {selectedFilterAnneeId && (
+          <div className="mt-3 text-xs text-gray-400 flex items-center gap-2">
+            <span>Affichage des responsables pour l'année {getSelectedAnneeLabel()}</span>
+            <span className="text-gray-300">•</span>
+            <span>{filteredChefs.length} responsable{filteredChefs.length > 1 ? 's' : ''} affiché{filteredChefs.length > 1 ? 's' : ''}</span>
+          </div>
+        )}
+      </div>
 
       {/* Statistiques - CARRÉES */}
       <div className="grid grid-cols-5 gap-4 mb-8">
@@ -183,6 +343,7 @@ export default function ChefsClientDistrict({
       {/* Recherche et boutons d'action */}
       <div className="mb-6 flex justify-between items-center gap-4">
         <div className="relative flex-1 max-w-md">
+          <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
           <input
             type="text"
             placeholder="Rechercher un département..."
@@ -190,27 +351,20 @@ export default function ChefsClientDistrict({
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 pr-4 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500 w-full"
           />
-          <svg className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
         </div>
         <div className="flex gap-3">
           <button
             onClick={() => setShowAddRoleModal(true)}
             className="bg-white border border-gray-300 text-gray-700 px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
+            <Plus size={16} />
             Nouveau rôle
           </button>
           <button
             onClick={() => setShowAddModal(true)}
             className="bg-gray-900 text-white px-4 py-2 text-sm hover:bg-gray-800 flex items-center gap-2"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+            <Plus size={16} />
             Ajouter un responsable
           </button>
         </div>
@@ -299,9 +453,7 @@ export default function ChefsClientDistrict({
                             disabled={loading}
                             className="text-xs text-blue-600 hover:text-blue-800 disabled:opacity-50 px-2 py-1 flex items-center gap-1"
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
+                            <Edit2 size={14} />
                             Rôle
                           </button>
                           <button
@@ -317,8 +469,14 @@ export default function ChefsClientDistrict({
                   </div>
                 ) : (
                   <div className="text-center py-8">
+                    <div className="w-12 h-12 mx-auto mb-3 text-gray-300">
+                      <Users size={48} className="w-full h-full" />
+                    </div>
                     <p className="text-gray-500 text-sm mb-3">
-                      Aucun responsable dans ce département
+                      {selectedFilterAnneeId 
+                        ? `Aucun responsable pour l'année ${getSelectedAnneeLabel()}`
+                        : 'Aucun responsable dans ce département'
+                      }
                     </p>
                     <button
                       onClick={() => {
@@ -327,9 +485,7 @@ export default function ChefsClientDistrict({
                       }}
                       className="inline-flex items-center gap-1 text-xs bg-gray-900 text-white px-3 py-1.5 hover:bg-gray-800"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
+                      <Plus size={14} />
                       Ajouter un responsable
                     </button>
                   </div>
@@ -345,9 +501,7 @@ export default function ChefsClientDistrict({
                       }}
                       className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
                     >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
+                      <Plus size={12} />
                       Ajouter un autre responsable ({postesRestants} disponible{postesRestants > 1 ? 's' : ''})
                     </button>
                   </div>
@@ -372,6 +526,7 @@ export default function ChefsClientDistrict({
           chefsExistants={chefsParDepartement}
           preselectedDepartementId={preselectedDepartementId}
           maxPostesParDepartement={maxPostesParDepartement}
+          selectedAnneeId={selectedFilterAnneeId}
           onClose={() => {
             setShowAddModal(false)
             setPreselectedDepartementId(null)
@@ -411,6 +566,7 @@ function AjouterChefModal({
   chefsExistants, 
   preselectedDepartementId,
   maxPostesParDepartement,
+  selectedAnneeId,
   onClose, 
   onAjouter, 
   loading 
@@ -531,6 +687,11 @@ function AjouterChefModal({
     formData.append('role_id', selectedRole)
     formData.append('date_nomination', dateNomination)
     
+    // Ajouter l'année de conférence si sélectionnée
+    if (selectedAnneeId) {
+      formData.append('annee_conference_id', selectedAnneeId.toString())
+    }
+    
     onAjouter(formData)
   }
 
@@ -588,7 +749,7 @@ function AjouterChefModal({
               </label>
               {loadingRoles ? (
                 <div className="text-center py-4">
-                  <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin mx-auto"></div>
+                  <Loader2 size={20} className="animate-spin mx-auto text-gray-400" />
                 </div>
               ) : rolesFiltres.length > 0 ? (
                 <>
@@ -630,26 +791,25 @@ function AjouterChefModal({
               Responsable <span className="text-red-500">*</span>
             </label>
             <div className="relative">
+              <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onFocus={handleSearchFocus}
                 placeholder="Nom du fidèle..."
-                className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500 pr-8"
+                className="w-full pl-10 pr-8 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                 autoComplete="off"
                 required
               />
               {searching && (
                 <div className="absolute right-3 top-2.5">
-                  <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                  <Loader2 size={16} className="animate-spin text-gray-400" />
                 </div>
               )}
               {selectedFidele && !searching && (
                 <div className="absolute right-3 top-2.5">
-                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <CheckCircle size={16} className="text-green-600" />
                 </div>
               )}
             </div>
@@ -664,7 +824,6 @@ function AjouterChefModal({
                     onClick={() => handleSelectFidele(fidele)}
                     className="w-full text-left p-3 hover:bg-gray-50 flex items-center gap-3 border-b border-gray-200 last:border-0"
                   >
-                    {/* Avatar - CERCLE */}
                     <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
                       {fidele.profile_img ? (
                         <img src={fidele.profile_img} alt="" className="w-full h-full object-cover" />
@@ -702,7 +861,6 @@ function AjouterChefModal({
           {/* Fidèle sélectionné */}
           {selectedFidele && (
             <div className="p-3 bg-blue-50 flex items-center gap-3">
-              {/* Avatar - CERCLE */}
               <div className="w-8 h-8 rounded-full bg-blue-200 overflow-hidden flex-shrink-0">
                 {selectedFidele.profile_img ? (
                   <img src={selectedFidele.profile_img} alt="" className="w-full h-full object-cover" />
@@ -725,9 +883,7 @@ function AjouterChefModal({
                 onClick={handleClearSelection}
                 className="text-gray-500 hover:text-gray-700"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X size={16} />
               </button>
             </div>
           )}
@@ -848,7 +1004,7 @@ function ModifierRoleModal({ chef, departementId, chefsExistants, onClose, onUpd
             </label>
             {loadingRoles ? (
               <div className="text-center py-4">
-                <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin mx-auto"></div>
+                <Loader2 size={20} className="animate-spin mx-auto text-gray-400" />
               </div>
             ) : (
               <select

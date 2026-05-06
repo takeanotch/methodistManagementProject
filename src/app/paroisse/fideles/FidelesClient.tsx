@@ -36,6 +36,7 @@ import CreerCompteModal from '../../admin/fideles/CreerCompteModal'
 import AddFideleModal from './AddFideleModal'
 import toast from 'react-hot-toast'
 
+
 interface Fidele {
   id: number
   nom: string
@@ -48,14 +49,14 @@ interface Fidele {
   annee_naissance: number | null
   actif: boolean
   sexe: string | null
-  fidele_type: string | null // Nouveau champ
+  fidele_type: string | null
   paroisse_id: number | null
   inscription_annee?: number
   date_inscription_paroisse?: string
-  paroisse?: {
+  paroisse?: {          // Changed from paroisse? to allow both null and undefined
     id: number
     nom: string
-  }
+  } | null              // Add null as possible type
   compte?: {
     id: number
     role_id: number
@@ -64,9 +65,8 @@ interface Fidele {
       nom: string
       niveau: string
     }
-  } | null
+  } | null              // Add null as possible type to match the data
 }
-
 interface AnneeDisponible {
   id: number
   label: string

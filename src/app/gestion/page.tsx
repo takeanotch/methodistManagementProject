@@ -3,9 +3,9 @@ import { redirect } from 'next/navigation'
 import AdminDashboard from '@/components/dashboards/AdminDashboard'
 import ParoisseDashboard from '@/components/dashboards/ParoisseDashboard'
 import Role6Dashboard from '@/components/dashboards/Role6Dashboard'
-import Role7Dashboard from '@/components/dashboards/Role7Dashboard'
 import Role8Dashboard from '@/components/dashboards/Role8Dashboard'
-
+import ChefConferenceDashboard from '@/components/dashboards/Role7Dashboard'
+import ChefDepartementConferenceDashboard from '@/components/dashboards/ChefDepartementConference'
 // Dashboard par défaut pour les autres rôles
 function DefaultDashboard({ roleNom }: { roleNom: string }) {
   return (
@@ -47,25 +47,27 @@ export default async function GestionPage() {
       case 1:
         return <AdminDashboard />
       case 4:
-        return <ParoisseDashboard />
+        return <ChefConferenceDashboard />
       case 9:
         return <ParoisseDashboard />
       case 6:
-        return <Role6Dashboard />
+        return <ParoisseDashboard/>
+      case 5:
+        return <ChefDepartementConferenceDashboard/>
       case 7:
-        return <Role7Dashboard />
+        return <ChefConferenceDashboard />
       case 8:
-        return <Role8Dashboard />
+        return <ParoisseDashboard />
       default:
         return <DefaultDashboard roleNom={roleNom} />
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       {/* Barre de navigation contextuelle */}
-      <div className="bg-white border-b border-gray-100  z-10">
-        <div className="max-w-7xl mx-auto px-4 py-3">
+      {/* <div className="bg-white border-b border-gray-100  z-10">
+        <div className="max-w-7xl mx-auto  py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-400">Espace de gestion</span>
@@ -86,10 +88,10 @@ export default async function GestionPage() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Contenu principal */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto  py-4">
         {renderDashboard()}
       </div>
     </div>

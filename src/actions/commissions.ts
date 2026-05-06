@@ -147,7 +147,7 @@ export async function getCommissionById(id: number) {
         post_nom,
         prenom,
         profile_img,
-        telephone,
+        contact,
         email
       )
     `)

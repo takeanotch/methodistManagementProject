@@ -301,7 +301,7 @@ export default function AnneesDistrictAdminClient({
   const hasActiveFilters = filters.districtId || filters.departementId || filters.anneeId || filters.statut
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto  py-2">
       {/* En-tête */}
       <div className="mb-8">
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">

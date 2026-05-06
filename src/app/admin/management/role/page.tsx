@@ -137,7 +137,7 @@ export default function RolesPage() {
   ]
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto  py-2">
       {/* En-tête */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -156,7 +156,7 @@ export default function RolesPage() {
 
       {/* Message de notification */}
       {message && (
-        <div className={`mb-6 p-4 rounded-lg ${
+        <div className={`mb-6 p-4 -lg ${
           message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
         }`}>
           {message.text}
@@ -189,14 +189,14 @@ export default function RolesPage() {
       <div className="flex justify-end mb-6">
         <button
           onClick={() => handleOpenModal()}
-          className="px-4 py-2 bg-gray-900 text-white text-sm hover:bg-gray-800 transition-colors rounded-lg"
+          className="px-4 py-2 bg-gray-900 text-white text-sm hover:bg-gray-800 transition-colors -lg"
         >
           + Nouveau rôle
         </button>
       </div>
 
       {/* Liste */}
-      <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+      <div className="bg-white -lg border border-gray-100 overflow-hidden">
         <table className="min-w-full divide-y divide-gray-50">
           <thead>
             <tr className="bg-gray-50/50">
@@ -287,7 +287,7 @@ export default function RolesPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/20 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
+          <div className="bg-white -lg max-w-md w-full p-6">
             <h3 className="text-lg font-light text-gray-900 mb-4">
               {editingRole ? 'Modifier' : 'Nouveau'} rôle ({niveauLabels[activeTab]})
             </h3>
@@ -302,7 +302,7 @@ export default function RolesPage() {
                     type="text"
                     value={formData.nom}
                     onChange={(e) => setFormData({ nom: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gray-400 transition-colors"
+                    className="w-full px-3 py-2 border border-gray-200 -lg text-sm focus:outline-none focus:border-gray-400 transition-colors"
                     placeholder="Président, Secrétaire, Trésorier..."
                     required
                     autoFocus
@@ -312,7 +312,7 @@ export default function RolesPage() {
                   </p>
                 </div>
 
-                <div className="bg-gray-50/50 p-3 rounded-lg">
+                <div className="bg-gray-50/50 p-3 -lg">
                   <div className="text-xs text-gray-400 flex items-center gap-2">
                     <span>Niveau :</span>
                     <span className={`text-sm ${niveauColors[activeTab]}`}>
@@ -332,7 +332,7 @@ export default function RolesPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-gray-900 text-white text-sm hover:bg-gray-800 transition-colors rounded-lg"
+                  className="px-4 py-2 bg-gray-900 text-white text-sm hover:bg-gray-800 transition-colors -lg"
                 >
                   {editingRole ? 'Modifier' : 'Créer'}
                 </button>

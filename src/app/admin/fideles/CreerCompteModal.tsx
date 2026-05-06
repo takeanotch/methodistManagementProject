@@ -91,7 +91,7 @@ export default function CreerCompteModal({ fidele, onClose }: CreerCompteModalPr
 
   return (
     <div className="fixed inset-0 bg-black/20 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-md w-full p-6">
+      <div className="bg-white -lg max-w-md w-full p-6">
         {/* En-tête */}
         <div className="mb-6">
           <h3 className="text-lg font-light text-gray-900">
@@ -103,7 +103,7 @@ export default function CreerCompteModal({ fidele, onClose }: CreerCompteModalPr
         </div>
 
         {/* Récapitulatif des informations */}
-        <div className="mb-6 p-4 bg-gray-50/50 rounded-lg border border-gray-100">
+        <div className="mb-6 p-4  bg-gray-50/50 -lg border border-gray-100">
           <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">
             Informations du fidèle
           </h4>
@@ -138,7 +138,7 @@ export default function CreerCompteModal({ fidele, onClose }: CreerCompteModalPr
               onChange={(e) => setFormData({ ...formData, mot_de_passe: e.target.value })}
               required
               minLength={6}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gray-400 transition-colors"
+              className="w-full px-3 py-2 border border-gray-200 -lg text-sm focus:outline-none focus:border-gray-400 transition-colors"
               placeholder="Minimum 6 caractères"
             />
           </div>
@@ -149,7 +149,7 @@ export default function CreerCompteModal({ fidele, onClose }: CreerCompteModalPr
               Rôle
             </label>
             {loadingRoles ? (
-              <div className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-400">
+              <div className="w-full px-3 py-2 border border-gray-200 -lg text-sm text-gray-400">
                 Chargement des rôles...
               </div>
             ) : (
@@ -158,7 +158,7 @@ export default function CreerCompteModal({ fidele, onClose }: CreerCompteModalPr
                 value={formData.role_id}
                 onChange={(e) => setFormData({ ...formData, role_id: e.target.value })}
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gray-400 transition-colors"
+                className="w-full px-3 py-2 border border-gray-200 -lg text-sm focus:outline-none focus:border-gray-400 transition-colors"
               >
                 {roles.map((role) => (
                   <option key={role.id} value={role.id}>
@@ -174,7 +174,7 @@ export default function CreerCompteModal({ fidele, onClose }: CreerCompteModalPr
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors border border-gray-200 rounded-lg"
+              className="flex-1 px-4 py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors border border-gray-200 -lg"
               disabled={loading}
             >
               Annuler
@@ -182,7 +182,7 @@ export default function CreerCompteModal({ fidele, onClose }: CreerCompteModalPr
             <button
               type="submit"
               disabled={loading || loadingRoles}
-              className="flex-1 px-4 py-2 bg-gray-900 text-white text-sm hover:bg-gray-800 transition-colors rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-gray-900 text-white text-sm hover:bg-gray-800 transition-colors -lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Création...' : 'Créer le compte'}
             </button>

@@ -22,7 +22,7 @@ export default async function AdminComptesPage() {
   ])
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto ">
       {/* En-tête */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-6">

@@ -704,7 +704,7 @@ useEffect(() => {
       <div className="max-w-6xl mx-auto ">
         
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-4">
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -828,33 +828,7 @@ useEffect(() => {
             )}
           </div>
 
-          {/* Stats globales */}
-          <div className="grid grid-cols-4 gap-4 mt-6">
-            <div className="bg-white border border-gray-200 px-5 py-4">
-              <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">
-                Total responsables
-              </p>
-              <p className="text-2xl font-light text-gray-900">{totalChefs}</p>
-            </div>
-            <div className="bg-white border border-gray-200 px-5 py-4">
-              <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">
-                Conférences
-              </p>
-              <p className="text-2xl font-light text-gray-900">{totalChefsConferences}</p>
-            </div>
-            <div className="bg-white border border-gray-200 px-5 py-4">
-              <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">
-                Districts
-              </p>
-              <p className="text-2xl font-light text-gray-900">{totalChefsDistricts}</p>
-            </div>
-            <div className="bg-white border border-gray-200 px-5 py-4">
-              <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">
-                Surintendants
-              </p>
-              <p className="text-2xl font-light text-gray-900">{totalSurintendantsActifs}</p>
-            </div>
-          </div>
+         
         </div>
 
         {/* Navigation par onglets */}

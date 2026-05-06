@@ -19,7 +19,7 @@ export default function RootLayout({
 <>
 <Navbar />
 
-<main className=" mx-auto px-4 py-8">
+<main className=" mx-auto px-2 py-4">
   {children}
 </main>
 <Toaster position="top-right" />

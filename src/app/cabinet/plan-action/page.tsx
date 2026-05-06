@@ -317,12 +317,7 @@ export default function CabinetPlanActionPage() {
         <span className="px-1 py-3 text-sm font-medium text-black border-b-2 border-black">
           Plan d'action
         </span>
-        <Link
-          href={buildUrl("/cabinet/budget")}
-          className="px-1 py-3 text-sm text-gray-500 hover:text-black border-b-2 border-transparent hover:border-gray-300"
-        >
-          Budget
-        </Link>
+      
         <Link
           href={buildUrl("/cabinet/projets")}
           className="px-1 py-3 text-sm text-gray-500 hover:text-black border-b-2 border-transparent hover:border-gray-300"

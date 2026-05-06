@@ -1504,135 +1504,135 @@ export async function getCurrentAnneeConferenceForDepartement(departementId: num
 /**
  * Ajouter un fidèle à un département (VERSION CORRIGÉE)
  */
-export async function addFideleToDepartement(formData: FormData) {
-  console.log('='.repeat(50))
-  console.log('🔵 addFideleToDepartement - DÉBUT')
-  console.log('='.repeat(50))
+// export async function addFideleToDepartement(formData: FormData) {
+//   console.log('='.repeat(50))
+//   console.log('🔵 addFideleToDepartement - DÉBUT')
+//   console.log('='.repeat(50))
   
-  try {
-    // Extraire les valeurs
-    const fidele_id = parseInt(formData.get('fidele_id')?.toString() || '0')
-    const departement_id = parseInt(formData.get('departement_id')?.toString() || '0')
-    const role_id = parseInt(formData.get('role_id')?.toString() || '0')
-    const annee_conference_id = parseInt(formData.get('annee_conference_id')?.toString() || '0')
-    const paroisse_id = formData.get('paroisse_id') ? parseInt(formData.get('paroisse_id')?.toString() || '0') : null
+//   try {
+//     // Extraire les valeurs
+//     const fidele_id = parseInt(formData.get('fidele_id')?.toString() || '0')
+//     const departement_id = parseInt(formData.get('departement_id')?.toString() || '0')
+//     const role_id = parseInt(formData.get('role_id')?.toString() || '0')
+//     const annee_conference_id = parseInt(formData.get('annee_conference_id')?.toString() || '0')
+//     const paroisse_id = formData.get('paroisse_id') ? parseInt(formData.get('paroisse_id')?.toString() || '0') : null
 
-    console.log('📥 Données reçues:', {
-      fidele_id,
-      departement_id,
-      role_id,
-      annee_conference_id,
-      paroisse_id
-    })
+//     console.log('📥 Données reçues:', {
+//       fidele_id,
+//       departement_id,
+//       role_id,
+//       annee_conference_id,
+//       paroisse_id
+//     })
 
-    // Validations
-    if (!fidele_id || isNaN(fidele_id)) {
-      return { error: 'ID du fidèle invalide' }
-    }
-    if (!departement_id || isNaN(departement_id)) {
-      return { error: 'ID du département invalide' }
-    }
-    if (!role_id || isNaN(role_id)) {
-      return { error: 'ID du rôle invalide' }
-    }
-    if (!annee_conference_id || isNaN(annee_conference_id)) {
-      return { error: 'ID de l\'année de conférence invalide' }
-    }
+//     // Validations
+//     if (!fidele_id || isNaN(fidele_id)) {
+//       return { error: 'ID du fidèle invalide' }
+//     }
+//     if (!departement_id || isNaN(departement_id)) {
+//       return { error: 'ID du département invalide' }
+//     }
+//     if (!role_id || isNaN(role_id)) {
+//       return { error: 'ID du rôle invalide' }
+//     }
+//     if (!annee_conference_id || isNaN(annee_conference_id)) {
+//       return { error: 'ID de l\'année de conférence invalide' }
+//     }
 
-    // Vérifier le fidèle
-    const { data: fidele, error: fideleError } = await supabase
-      .from('fidele')
-      .select('id, nom, prenom, paroisse_id')
-      .eq('id', fidele_id)
-      .single()
+//     // Vérifier le fidèle
+//     const { data: fidele, error: fideleError } = await supabase
+//       .from('fidele')
+//       .select('id, nom, prenom, paroisse_id')
+//       .eq('id', fidele_id)
+//       .single()
 
-    if (fideleError || !fidele) {
-      return { error: 'Fidèle non trouvé' }
-    }
+//     if (fideleError || !fidele) {
+//       return { error: 'Fidèle non trouvé' }
+//     }
 
-    const finalParoisseId = paroisse_id || fidele.paroisse_id
+//     const finalParoisseId = paroisse_id || fidele.paroisse_id
 
-    // Vérifier le département
-    const { data: departement, error: deptError } = await supabase
-      .from('departement')
-      .select('id, nom, roles_config')
-      .eq('id', departement_id)
-      .single()
+//     // Vérifier le département
+//     const { data: departement, error: deptError } = await supabase
+//       .from('departement')
+//       .select('id, nom, roles_config')
+//       .eq('id', departement_id)
+//       .single()
 
-    if (deptError || !departement) {
-      return { error: 'Département non trouvé' }
-    }
+//     if (deptError || !departement) {
+//       return { error: 'Département non trouvé' }
+//     }
 
-    // Vérifier le rôle
-    const roleExists = departement.roles_config?.some((role: any) => role.id === role_id)
-    if (!roleExists) {
-      return { error: 'Rôle invalide pour ce département' }
-    }
+//     // Vérifier le rôle
+//     const roleExists = departement.roles_config?.some((role: any) => role.id === role_id)
+//     if (!roleExists) {
+//       return { error: 'Rôle invalide pour ce département' }
+//     }
 
-    // Vérifier l'année de conférence et récupérer annee_id
-    const { data: anneeConference, error: acError } = await supabase
-      .from('annee_conference')
-      .select('id, is_current, annee_id')
-      .eq('id', annee_conference_id)
-      .maybeSingle()
+//     // Vérifier l'année de conférence et récupérer annee_id
+//     const { data: anneeConference, error: acError } = await supabase
+//       .from('annee_conference')
+//       .select('id, is_current, annee_id')
+//       .eq('id', annee_conference_id)
+//       .maybeSingle()
 
-    if (acError || !anneeConference) {
-      return { error: 'Année de conférence invalide' }
-    }
+//     if (acError || !anneeConference) {
+//       return { error: 'Année de conférence invalide' }
+//     }
 
-    // Vérifier les doublons
-    const { data: existing } = await supabase
-      .from('fidele_departement')
-      .select('id')
-      .eq('fidele_id', fidele_id)
-      .eq('departement_id', departement_id)
-      .eq('role_id', role_id)
-      .eq('annee_conference_id', annee_conference_id)
-      .eq('est_actif', true)
-      .maybeSingle()
+//     // Vérifier les doublons
+//     const { data: existing } = await supabase
+//       .from('fidele_departement')
+//       .select('id')
+//       .eq('fidele_id', fidele_id)
+//       .eq('departement_id', departement_id)
+//       .eq('role_id', role_id)
+//       .eq('annee_conference_id', annee_conference_id)
+//       .eq('est_actif', true)
+//       .maybeSingle()
 
-    if (existing) {
-      return { error: 'Ce fidèle a déjà ce rôle pour cette année' }
-    }
+//     if (existing) {
+//       return { error: 'Ce fidèle a déjà ce rôle pour cette année' }
+//     }
 
-    // Insérer l'affectation
-    const insertData = {
-      fidele_id,
-      departement_id,
-      role_id,
-      annee_conference_id,
-      annee_id: anneeConference.annee_id, // ← Rempli automatiquement depuis annee_conference
-      est_actif: true,
-      paroisse_id: finalParoisseId
-    }
+//     // Insérer l'affectation
+//     const insertData = {
+//       fidele_id,
+//       departement_id,
+//       role_id,
+//       annee_conference_id,
+//       annee_id: anneeConference.annee_id, // ← Rempli automatiquement depuis annee_conference
+//       est_actif: true,
+//       paroisse_id: finalParoisseId
+//     }
 
-    console.log('📝 Insertion:', insertData)
+//     console.log('📝 Insertion:', insertData)
 
-    const { error: insertError } = await supabase
-      .from('fidele_departement')
-      .insert([insertData])
+//     const { error: insertError } = await supabase
+//       .from('fidele_departement')
+//       .insert([insertData])
 
-    if (insertError) {
-      console.error('❌ Erreur insertion:', insertError)
-      if (insertError.code === '23505') {
-        return { error: 'Cette affectation existe déjà' }
-      }
-      return { error: `Erreur: ${insertError.message}` }
-    }
+//     if (insertError) {
+//       console.error('❌ Erreur insertion:', insertError)
+//       if (insertError.code === '23505') {
+//         return { error: 'Cette affectation existe déjà' }
+//       }
+//       return { error: `Erreur: ${insertError.message}` }
+//     }
 
-    // Revalider les chemins
-    revalidatePath(`/paroisse/departements/${departement_id}/membres`)
-    revalidatePath(`/admin/departements/${departement_id}`)
-    revalidatePath(`/admin/fideles/${fidele_id}`)
+//     // Revalider les chemins
+//     revalidatePath(`/paroisse/departements/${departement_id}/membres`)
+//     revalidatePath(`/admin/departements/${departement_id}`)
+//     revalidatePath(`/admin/fideles/${fidele_id}`)
     
-    console.log('✅ Succès!')
-    return { success: true }
+//     console.log('✅ Succès!')
+//     return { success: true }
 
-  } catch (error) {
-    console.error('❌ Exception:', error)
-    return { error: 'Une erreur inattendue est survenue' }
-  }
-}
+//   } catch (error) {
+//     console.error('❌ Exception:', error)
+//     return { error: 'Une erreur inattendue est survenue' }
+//   }
+// }
 
 
 
@@ -1723,5 +1723,177 @@ export async function getFidelesByDepartementAndAnneeConference(
   } catch (error) {
     console.error('❌ Erreur inattendue:', error)
     return []
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+export async function addFideleToDepartement(formData: FormData) {
+  console.log('='.repeat(50))
+  console.log('🔵 addFideleToDepartement - DÉBUT')
+  console.log('='.repeat(50))
+  
+  try {
+    // Extraire les valeurs
+    const fidele_id = parseInt(formData.get('fidele_id')?.toString() || '0')
+    const departement_id = parseInt(formData.get('departement_id')?.toString() || '0')
+    const role_id = parseInt(formData.get('role_id')?.toString() || '0')
+    const annee_conference_id = parseInt(formData.get('annee_conference_id')?.toString() || '0')
+    const paroisse_id = formData.get('paroisse_id') ? parseInt(formData.get('paroisse_id')?.toString() || '0') : null
+    // ✅ AJOUTER CETTE LIGNE
+    const commission_id = formData.get('commission_id') ? parseInt(formData.get('commission_id')?.toString() || '0') : null
+
+    console.log('📥 Données reçues:', {
+      fidele_id,
+      departement_id,
+      role_id,
+      annee_conference_id,
+      paroisse_id,
+      commission_id  // ✅ AJOUTER
+    })
+
+    // Validations
+    if (!fidele_id || isNaN(fidele_id)) {
+      return { error: 'ID du fidèle invalide' }
+    }
+    if (!departement_id || isNaN(departement_id)) {
+      return { error: 'ID du département invalide' }
+    }
+    if (!role_id || isNaN(role_id)) {
+      return { error: 'ID du rôle invalide' }
+    }
+    if (!annee_conference_id || isNaN(annee_conference_id)) {
+      return { error: 'ID de l\'année de conférence invalide' }
+    }
+
+    // Vérifier le fidèle
+    const { data: fidele, error: fideleError } = await supabase
+      .from('fidele')
+      .select('id, nom, prenom, paroisse_id')
+      .eq('id', fidele_id)
+      .single()
+
+    if (fideleError || !fidele) {
+      return { error: 'Fidèle non trouvé' }
+    }
+
+    const finalParoisseId = paroisse_id || fidele.paroisse_id
+
+    // Vérifier le département
+    const { data: departement, error: deptError } = await supabase
+      .from('departement')
+      .select('id, nom, roles_config')
+      .eq('id', departement_id)
+      .single()
+
+    if (deptError || !departement) {
+      return { error: 'Département non trouvé' }
+    }
+
+    // Vérifier le rôle
+    const roleExists = departement.roles_config?.some((role: any) => role.id === role_id)
+    if (!roleExists) {
+      return { error: 'Rôle invalide pour ce département' }
+    }
+
+    // Vérifier l'année de conférence et récupérer annee_id
+    const { data: anneeConference, error: acError } = await supabase
+      .from('annee_conference')
+      .select('id, is_current, annee_id')
+      .eq('id', annee_conference_id)
+      .maybeSingle()
+
+    if (acError || !anneeConference) {
+      return { error: 'Année de conférence invalide' }
+    }
+
+    // ✅ SI commission_id est fourni, vérifier que la commission existe
+    if (commission_id) {
+      const { data: commission, error: commError } = await supabase
+        .from('commission')
+        .select('id, nom, departement_id')
+        .eq('id', commission_id)
+        .eq('departement_id', departement_id)
+        .single()
+      
+      if (commError || !commission) {
+        return { error: 'Commission invalide ou n\'appartient pas à ce département' }
+      }
+    }
+
+    // Vérifier les doublons
+    let checkQuery = supabase
+      .from('fidele_departement')
+      .select('id')
+      .eq('fidele_id', fidele_id)
+      .eq('departement_id', departement_id)
+      .eq('role_id', role_id)
+      .eq('annee_conference_id', annee_conference_id)
+      .eq('est_actif', true)
+
+    // ✅ Si commission_id est fourni, vérifier aussi la commission
+    if (commission_id) {
+      checkQuery = checkQuery.eq('commission_id', commission_id)
+    }
+
+    const { data: existing } = await checkQuery.maybeSingle()
+
+    if (existing) {
+      return { error: 'Ce fidèle a déjà ce rôle pour cette année' }
+    }
+
+    // ✅ Insérer l'affectation AVEC commission_id
+    const insertData: any = {
+      fidele_id,
+      departement_id,
+      role_id,
+      annee_conference_id,
+      annee_id: anneeConference.annee_id,
+      est_actif: true,
+      paroisse_id: finalParoisseId
+    }
+
+    // ✅ Ajouter commission_id seulement s'il est fourni
+    if (commission_id) {
+      insertData.commission_id = commission_id
+    }
+
+    console.log('📝 Insertion:', insertData)
+
+    const { error: insertError } = await supabase
+      .from('fidele_departement')
+      .insert([insertData])
+
+    if (insertError) {
+      console.error('❌ Erreur insertion:', insertError)
+      if (insertError.code === '23505') {
+        return { error: 'Cette affectation existe déjà' }
+      }
+      return { error: `Erreur: ${insertError.message}` }
+    }
+
+    // Revalider les chemins
+    revalidatePath(`/paroisse/departements/${departement_id}/membres`)
+    revalidatePath(`/admin/departements/${departement_id}`)
+    revalidatePath(`/admin/fideles/${fidele_id}`)
+    if (commission_id) {
+      revalidatePath(`/admin/commissions/${commission_id}`)
+      revalidatePath(`/paroisse/commissions/${commission_id}`)
+    }
+    
+    console.log('✅ Succès!')
+    return { success: true }
+
+  } catch (error) {
+    console.error('❌ Exception:', error)
+    return { error: 'Une erreur inattendue est survenue' }
   }
 }

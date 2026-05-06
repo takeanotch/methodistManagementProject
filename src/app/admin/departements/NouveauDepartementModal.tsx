@@ -226,7 +226,7 @@ async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* En-tête */}
-        <div className="border-b border-gray-100 px-6 py-4 flex items-center justify-between flex-shrink-0">
+        <div className="border-b  border-gray-100 px-6 py-4 flex items-center justify-between flex-shrink-0">
           <div>
             <h2 className="text-xl font-light text-gray-900">
               {departement ? 'Modifier le département' : 'Nouveau département'}

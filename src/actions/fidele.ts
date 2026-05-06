@@ -108,84 +108,112 @@ export async function getFidelesSansCompte() {
 }
 
 // Récupérer les fidèles par paroisse ET année de conférence
-export async function getFidelesByParoisseAndAnnee(paroisseId: number, anneeConferenceId?: number) {
-  try {
-    let finalAnneeConferenceId = anneeConferenceId
+// export async function getFidelesByParoisseAndAnnee(paroisseId: number, anneeConferenceId?: number) {
+//   try {
+//     let finalAnneeConferenceId = anneeConferenceId
     
-    // Si aucune année de conférence n'est fournie, récupérer l'année en cours
-    if (!finalAnneeConferenceId) {
-      const conferenceId = await getConferenceIdByParoisse(paroisseId)
-      if (conferenceId) {
-        const currentAnneeConf = await getCurrentAnneeConference(conferenceId)
-        if (currentAnneeConf) {
-          finalAnneeConferenceId = currentAnneeConf.id
-        }
-      }
-    }
+//     // Si aucune année de conférence n'est fournie, récupérer l'année en cours
+//     if (!finalAnneeConferenceId) {
+//       const conferenceId = await getConferenceIdByParoisse(paroisseId)
+//       if (conferenceId) {
+//         const currentAnneeConf = await getCurrentAnneeConference(conferenceId)
+//         if (currentAnneeConf) {
+//           finalAnneeConferenceId = currentAnneeConf.id
+//         }
+//       }
+//     }
 
-    if (!finalAnneeConferenceId) {
-      console.log('Aucune année de conférence trouvée pour paroisseId:', paroisseId)
-      return []
-    }
+//     if (!finalAnneeConferenceId) {
+//       console.log('Aucune année de conférence trouvée pour paroisseId:', paroisseId)
+//       return []
+//     }
 
-    // Récupérer les fidèles via fidele_paroisse pour l'année de conférence spécifiée
-    const { data: fideleParoisse, error } = await supabase
-      .from('fidele_paroisse')
-      .select(`
-        fidele_id,
-        annee_conference_id,
-        created_at,
-        fidele:fidele_id (
-          *,
-          paroisse:paroisse_id (id, nom),
-          compte:compte!left (
-            id,
-            role_id,
-            role:role_id (
-              id,
-              nom,
-              niveau
-            )
-          )
-        )
-      `)
-      .eq('paroisse_id', paroisseId)
-      .eq('annee_conference_id', finalAnneeConferenceId)
-      .order('created_at', { ascending: false })
+//     // Récupérer les fidèles via fidele_paroisse pour l'année de conférence spécifiée
+//     const { data: fideleParoisse, error } = await supabase
+//       .from('fidele_paroisse')
+//       .select(`
+//         fidele_id,
+//         annee_conference_id,
+//         created_at,
+//         fidele:fidele_id (
+//           *,
+//           paroisse:paroisse_id (id, nom),
+//           compte:compte!left (
+//             id,
+//             role_id,
+//             role:role_id (
+//               id,
+//               nom,
+//               niveau
+//             )
+//           )
+//         )
+//       `)
+//       .eq('paroisse_id', paroisseId)
+//       .eq('annee_conference_id', finalAnneeConferenceId)
+//       .order('created_at', { ascending: false })
 
-    if (error) {
-      console.error('Erreur lors de la récupération des fidèles:', error)
-      return []
-    }
+//     if (error) {
+//       console.error('Erreur lors de la récupération des fidèles:', error)
+//       return []
+//     }
 
-    // Transformer les données
-    const fideles = (fideleParoisse || [])
-      .map(item => {
-        const fidele = Array.isArray(item.fidele) ? item.fidele[0] : item.fidele
-        if (!fidele) return null
+//     // Transformer les données
+//     const fideles = (fideleParoisse || [])
+//       .map(item => {
+//         const fidele = Array.isArray(item.fidele) ? item.fidele[0] : item.fidele
+//         if (!fidele) return null
         
-        let compte = null
-        if (fidele.compte) {
-          compte = Array.isArray(fidele.compte) ? fidele.compte[0] : fidele.compte
-        }
+//         let compte = null
+//         if (fidele.compte) {
+//           compte = Array.isArray(fidele.compte) ? fidele.compte[0] : fidele.compte
+//         }
         
-        return {
-          ...fidele,
-          compte,
-          inscription_annee_conference: item.annee_conference_id,
-          date_inscription_paroisse: item.created_at
-        }
-      })
-      .filter(Boolean)
+//         return {
+//           ...fidele,
+//           compte,
+//           inscription_annee_conference: item.annee_conference_id,
+//           date_inscription_paroisse: item.created_at
+//         }
+//       })
+//       .filter(Boolean)
 
-    return fideles
-  } catch (error) {
-    console.error('Erreur inattendue dans getFidelesByParoisseAndAnnee:', error)
-    return []
-  }
-}
+//     return fideles
+//   } catch (error) {
+//     console.error('Erreur inattendue dans getFidelesByParoisseAndAnnee:', error)
+//     return []
+//   }
+// }
 
 // Récupérer les fidèles sans compte pour une paroisse et une année de conférence
+// export async function getFidelesSansCompteByParoisseAndAnnee(paroisseId: number, anneeConferenceId?: number) {
+//   try {
+//     const { data: comptes, error: comptesError } = await supabase
+//       .from('compte')
+//       .select('fidele_id')
+//       .not('fidele_id', 'is', null)
+
+//     if (comptesError) {
+//       console.error('Erreur lors de la récupération des comptes:', comptesError)
+//       return []
+//     }
+
+//     const idsAvecCompte = comptes?.map(c => c.fidele_id).filter(id => id !== null) || []
+//     const fideles = await getFidelesByParoisseAndAnnee(paroisseId, anneeConferenceId)
+    
+//     return fideles.filter(fidele => !idsAvecCompte.includes(fidele.id))
+//   } catch (error) {
+//     console.error('Erreur inattendue:', error)
+//     return []
+//   }
+// }
+
+// Versions simplifiées pour la rétrocompatibilité
+// export async function getFidelesByParoisse(paroisseId: number, anneeConferenceId?: number) {
+//   return getFidelesByParoisseAndAnnee(paroisseId, anneeConferenceId)
+// }
+// actions/fidele.ts - Version corrigée
+
 export async function getFidelesSansCompteByParoisseAndAnnee(paroisseId: number, anneeConferenceId?: number) {
   try {
     const { data: comptes, error: comptesError } = await supabase
@@ -198,19 +226,15 @@ export async function getFidelesSansCompteByParoisseAndAnnee(paroisseId: number,
       return []
     }
 
-    const idsAvecCompte = comptes?.map(c => c.fidele_id).filter(id => id !== null) || []
+    const idsAvecCompte = comptes?.map(c => c.fidele_id).filter((id): id is number => id !== null) || []
     const fideles = await getFidelesByParoisseAndAnnee(paroisseId, anneeConferenceId)
     
-    return fideles.filter(fidele => !idsAvecCompte.includes(fidele.id))
+    // Filtrer les fidèles qui n'ont pas de compte et s'assurer que fidele n'est pas null
+    return fideles.filter(fidele => fidele !== null && fidele !== undefined && !idsAvecCompte.includes(fidele.id))
   } catch (error) {
     console.error('Erreur inattendue:', error)
     return []
   }
-}
-
-// Versions simplifiées pour la rétrocompatibilité
-export async function getFidelesByParoisse(paroisseId: number, anneeConferenceId?: number) {
-  return getFidelesByParoisseAndAnnee(paroisseId, anneeConferenceId)
 }
 
 export async function getFidelesSansCompteByParoisse(paroisseId: number, anneeConferenceId?: number) {
@@ -962,4 +986,323 @@ export async function getFidelesByParoisseSimple(paroisseId: number) {
     console.error('Erreur inattendue dans getFidelesByParoisseSimple:', error)
     return []
   }
+}
+
+
+
+
+
+
+
+
+
+// actions/fidele.ts - Fonction mise à jour
+
+// Récupérer les fidèles par paroisse ET année de conférence
+// export async function getFidelesByParoisseAndAnnee(paroisseId: number, anneeConferenceId?: number) {
+//   try {
+//     let finalAnneeConferenceId = anneeConferenceId
+    
+//     // Si aucune année de conférence n'est fournie, récupérer l'année en cours
+//     if (!finalAnneeConferenceId) {
+//       const conferenceId = await getConferenceIdByParoisse(paroisseId)
+//       if (conferenceId) {
+//         const currentAnneeConf = await getCurrentAnneeConference(conferenceId)
+//         if (currentAnneeConf) {
+//           finalAnneeConferenceId = currentAnneeConf.id
+//         }
+//       }
+//     }
+
+//     if (!finalAnneeConferenceId) {
+//       console.log('Aucune année de conférence trouvée pour paroisseId:', paroisseId)
+//       return []
+//     }
+
+//     // Récupérer les fidèles via fidele_paroisse pour l'année de conférence spécifiée
+//     const { data: fideleParoisse, error } = await supabase
+//       .from('fidele_paroisse')
+//       .select(`
+//         fidele_id,
+//         annee_conference_id,
+//         created_at,
+//         fidele:fidele_id (
+//           id,
+//           nom,
+//           post_nom,
+//           prenom,
+//           contact,
+//           adresse,
+//           annee_naissance,
+//           date_naissance,
+//           sexe,
+//           email,
+//           actif,
+//           paroisse_id,
+//           profile_img,
+//           fidele_type,
+//           created_at,
+//           updated_at,
+//           paroisse:paroisse_id (id, nom),
+//           compte:compte!left (
+//             id,
+//             role_id,
+//             role:role_id (
+//               id,
+//               nom,
+//               niveau
+//             )
+//           )
+//         )
+//       `)
+//       .eq('paroisse_id', paroisseId)
+//       .eq('annee_conference_id', finalAnneeConferenceId)
+//       .order('created_at', { ascending: false })
+
+//     if (error) {
+//       console.error('Erreur lors de la récupération des fidèles:', error)
+//       return []
+//     }
+
+//     // Transformer les données
+//     const fideles = (fideleParoisse || [])
+//       .map(item => {
+//         const fidele = Array.isArray(item.fidele) ? item.fidele[0] : item.fidele
+//         if (!fidele) return null
+        
+//         let compte = null
+//         if (fidele.compte) {
+//           compte = Array.isArray(fidele.compte) ? fidele.compte[0] : fidele.compte
+//         }
+        
+//         // S'assurer que profile_img est bien inclus
+//         return {
+//           ...fidele,
+//           profile_img: fidele.profile_img || null,
+//           compte,
+//           inscription_annee_conference: item.annee_conference_id,
+//           date_inscription_paroisse: item.created_at
+//         }
+//       })
+//       .filter(Boolean)
+
+//     return fideles
+//   } catch (error) {
+//     console.error('Erreur inattendue dans getFidelesByParoisseAndAnnee:', error)
+//     return []
+//   }
+// }
+
+// // Version simplifiée pour la rétrocompatibilité - cette fonction est appelée dans la page
+// export async function getFidelesByParoisse(paroisseId: number, anneeConferenceId?: number) {
+//   return getFidelesByParoisseAndAnnee(paroisseId, anneeConferenceId)
+// }
+
+
+// export async function getFidelesByParoisseAndAnnee(paroisseId: number, anneeConferenceId?: number) {
+//   try {
+//     let finalAnneeConferenceId = anneeConferenceId
+    
+//     // Si aucune année de conférence n'est fournie, récupérer l'année en cours
+//     if (!finalAnneeConferenceId) {
+//       const conferenceId = await getConferenceIdByParoisse(paroisseId)
+//       if (conferenceId) {
+//         const currentAnneeConf = await getCurrentAnneeConference(conferenceId)
+//         if (currentAnneeConf) {
+//           finalAnneeConferenceId = currentAnneeConf.id
+//         }
+//       }
+//     }
+
+//     if (!finalAnneeConferenceId) {
+//       console.log('Aucune année de conférence trouvée pour paroisseId:', paroisseId)
+//       return []
+//     }
+
+//     // Requête avec UNIQUEMENT les colonnes qui existent dans la table fidele
+//     const { data: fideleParoisse, error } = await supabase
+//       .from('fidele_paroisse')
+//       .select(`
+//         fidele_id,
+//         annee_conference_id,
+//         created_at,
+//         fidele:fidele_id (
+//           id,
+//           nom,
+//           post_nom,
+//           prenom,
+//           contact,
+//           adresse,
+//           annee_naissance,
+//           sexe,
+//           fidele_type,
+//           actif,
+//           paroisse_id,
+//           profile_img,
+//           created_at,
+//           updated_at,
+//           paroisse:paroisse_id (
+//             id, 
+//             nom
+//           )
+//         )
+//       `)
+//       .eq('paroisse_id', paroisseId)
+//       .eq('annee_conference_id', finalAnneeConferenceId)
+//       .order('created_at', { ascending: false })
+
+//     if (error) {
+//       console.error('❌ Erreur Supabase:', JSON.stringify(error, null, 2))
+//       return []
+//     }
+
+//     if (!fideleParoisse || fideleParoisse.length === 0) {
+//       return []
+//     }
+
+//     // Transformer les données
+//     const fideles = fideleParoisse
+//       .map(item => {
+//         const fidele = Array.isArray(item.fidele) ? item.fidele[0] : item.fidele
+//         if (!fidele) return null
+        
+//         return {
+//           id: fidele.id,
+//           nom: fidele.nom,
+//           post_nom: fidele.post_nom,
+//           prenom: fidele.prenom,
+//           contact: fidele.contact,
+//           adresse: fidele.adresse,
+//           annee_naissance: fidele.annee_naissance,
+//           sexe: fidele.sexe,
+//           fidele_type: fidele.fidele_type,
+//           actif: fidele.actif,
+//           paroisse_id: fidele.paroisse_id,
+//           profile_img: fidele.profile_img || null,
+//           created_at: fidele.created_at,
+//           updated_at: fidele.updated_at,
+//           paroisse: fidele.paroisse,
+//           compte: null,
+//           inscription_annee_conference: item.annee_conference_id,
+//           date_inscription_paroisse: item.created_at
+//         }
+//       })
+//       .filter((fidele): fidele is NonNullable<typeof fidele> => fidele !== null && fidele !== undefined)
+
+//     return fideles
+//   } catch (error) {
+//     console.error('❌ Erreur inattendue:', error)
+//     return []
+//   }
+// }
+
+// export async function getFidelesByParoisse(paroisseId: number, anneeConferenceId?: number) {
+//   return getFidelesByParoisseAndAnnee(paroisseId, anneeConferenceId)
+// }
+
+// actions/fidele.ts - Fixed version
+
+export async function getFidelesByParoisseAndAnnee(paroisseId: number, anneeConferenceId?: number) {
+  try {
+    let finalAnneeConferenceId = anneeConferenceId
+    
+    // Si aucune année de conférence n'est fournie, récupérer l'année en cours
+    if (!finalAnneeConferenceId) {
+      const conferenceId = await getConferenceIdByParoisse(paroisseId)
+      if (conferenceId) {
+        const currentAnneeConf = await getCurrentAnneeConference(conferenceId)
+        if (currentAnneeConf) {
+          finalAnneeConferenceId = currentAnneeConf.id
+        }
+      }
+    }
+
+    if (!finalAnneeConferenceId) {
+      console.log('Aucune année de conférence trouvée pour paroisseId:', paroisseId)
+      return []
+    }
+
+    // Requête avec UNIQUEMENT les colonnes qui existent dans la table fidele
+    const { data: fideleParoisse, error } = await supabase
+      .from('fidele_paroisse')
+      .select(`
+        fidele_id,
+        annee_conference_id,
+        created_at,
+        fidele:fidele_id (
+          id,
+          nom,
+          post_nom,
+          prenom,
+          contact,
+          adresse,
+          annee_naissance,
+          sexe,
+          fidele_type,
+          actif,
+          paroisse_id,
+          profile_img,
+          created_at,
+          updated_at,
+          paroisse:paroisse_id (
+            id, 
+            nom
+          )
+        )
+      `)
+      .eq('paroisse_id', paroisseId)
+      .eq('annee_conference_id', finalAnneeConferenceId)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('❌ Erreur Supabase:', JSON.stringify(error, null, 2))
+      return []
+    }
+
+    if (!fideleParoisse || fideleParoisse.length === 0) {
+      return []
+    }
+
+    // Transformer les données
+    const fideles = fideleParoisse
+      .map(item => {
+        const fidele = Array.isArray(item.fidele) ? item.fidele[0] : item.fidele
+        if (!fidele) return null
+        
+        // Fix: Ensure paroisse is a single object, not an array
+        const paroisse = fidele.paroisse
+        const paroisseObj = Array.isArray(paroisse) ? (paroisse.length > 0 ? paroisse[0] : null) : paroisse
+        
+        return {
+          id: fidele.id,
+          nom: fidele.nom,
+          post_nom: fidele.post_nom,
+          prenom: fidele.prenom,
+          contact: fidele.contact,
+          adresse: fidele.adresse,
+          annee_naissance: fidele.annee_naissance,
+          sexe: fidele.sexe,
+          fidele_type: fidele.fidele_type,
+          actif: fidele.actif,
+          paroisse_id: fidele.paroisse_id,
+          profile_img: fidele.profile_img || null,
+          created_at: fidele.created_at,
+          updated_at: fidele.updated_at,
+          paroisse: paroisseObj, // Now correctly typed as { id: number, nom: string } | null
+          compte: null,
+          inscription_annee_conference: item.annee_conference_id,
+          date_inscription_paroisse: item.created_at
+        }
+      })
+      .filter((fidele): fidele is NonNullable<typeof fidele> => fidele !== null && fidele !== undefined)
+
+    return fideles
+  } catch (error) {
+    console.error('❌ Erreur inattendue:', error)
+    return []
+  }
+}
+
+export async function getFidelesByParoisse(paroisseId: number, anneeConferenceId?: number) {
+  return getFidelesByParoisseAndAnnee(paroisseId, anneeConferenceId)
 }
